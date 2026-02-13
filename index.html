@@ -3,38 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini AI - Final Version</title>
+    <title>Gemini AI Developer Partner</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         body { background-color: #0f172a; color: white; font-family: sans-serif; }
         .chat-box { height: 75vh; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; scroll-behavior: smooth; }
-        .message { padding: 12px 16px; border-radius: 12px; max-width: 85%; line-height: 1.5; font-size: 14px; }
+        .message { padding: 12px 16px; border-radius: 15px; max-width: 85%; font-size: 14px; line-height: 1.6; }
         .user-msg { background: #2563eb; align-self: flex-end; border-bottom-right-radius: 2px; }
         .ai-msg { background: #1e293b; align-self: flex-start; border: 1px solid #334155; border-bottom-left-radius: 2px; }
         pre { background: #000; padding: 12px; border-radius: 8px; overflow-x: auto; margin: 10px 0; border: 1px solid #3b82f6; }
         code { color: #60a5fa; font-family: 'Courier New', monospace; }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
-<body class="p-4 md:p-8 bg-slate-950">
+<body class="bg-slate-950 p-4 md:p-6">
 
     <div class="max-w-4xl mx-auto">
-        <header class="flex items-center justify-between mb-6 border-b border-slate-800 pb-4">
+        <header class="flex items-center justify-between mb-4 border-b border-slate-800 pb-4">
             <div>
-                <h1 class="text-xl font-bold text-blue-400">Gemini AI Developer Partner</h1>
-                <p class="text-xs text-slate-500">Status: <span id="status" class="text-green-500 font-bold italic">Connected</span></p>
+                <h1 class="text-xl font-bold text-blue-400">Gemini AI Partner</h1>
+                <p class="text-xs text-slate-500">Status: <span id="status" class="text-green-500 font-bold">Online</span></p>
             </div>
         </header>
         
-        <div id="chatBox" class="chat-box mb-6 p-4 rounded-xl bg-slate-900/40 shadow-inner border border-slate-800">
+        <div id="chatBox" class="chat-box mb-4 p-4 rounded-2xl bg-slate-900/40 border border-slate-800 shadow-inner">
             <div class="message ai-msg">
-                <b>জেমিনি:</b> অভিনন্দন! আপনার সিস্টেমটি এখন সরাসরি গুগল সার্ভারের সাথে যুক্ত। আমি আপনার প্রজেক্টের কোডিং বা যেকোনো সমস্যায় সাহায্য করতে প্রস্তুত। কিছু একটা লিখে পরীক্ষা করুন।
+                <b>জেমিনি:</b> অভিনন্দন! সিস্টেমটি এখন সরাসরি গুগল এপিআই-এর লেটেস্ট ভার্সনে যুক্ত। আমি আপনার কোডিং বা যেকোনো প্রশ্ন উত্তর দিতে প্রস্তুত।
             </div>
         </div>
 
-        <div class="flex gap-2 bg-slate-900 p-2 rounded-2xl border border-slate-700 shadow-xl">
+        <div class="flex gap-2 bg-slate-900 p-2 rounded-2xl border border-slate-700 shadow-2xl">
             <input type="text" id="userInput" placeholder="আপনার প্রশ্ন এখানে লিখুন..." class="flex-1 p-3 bg-transparent outline-none text-white text-sm">
             <button onclick="sendMessage()" id="sendBtn" class="bg-blue-600 px-6 py-2 rounded-xl font-bold hover:bg-blue-700 active:scale-95 transition-all text-sm">পাঠান</button>
         </div>
@@ -43,8 +41,9 @@
     <script>
         // আপনার স্ক্রিনশট ৪৬৯ থেকে নেওয়া সচল এপিআই কী
         const API_KEY = "AIzaSyBaM7GCJF3SvfqlyoGTq_U4ufitrgqQ4eo"; 
-        // একদম লেটেস্ট স্টেবল এন্ডপয়েন্ট
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        
+        // এটিই হলো সঠিক URL যা ৪৬৫ নম্বর এররটি সমাধান করবে
+        const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
         async function sendMessage() {
             const inputField = document.getElementById('userInput');
@@ -55,16 +54,14 @@
 
             if (!text) return;
 
-            // ইউজার মেসেজ দেখানো
             chatBox.innerHTML += `<div class="message user-msg shadow-lg"><b>আপনি:</b><br>${text}</div>`;
             inputField.value = "";
             btn.disabled = true;
-            status.innerText = "Gemini is thinking...";
-            status.className = "text-yellow-500 font-bold italic";
+            status.innerText = "Thinking...";
+            status.className = "text-yellow-500 font-bold";
             chatBox.scrollTop = chatBox.scrollHeight;
 
             try {
-                // সরাসরি API রিকোয়েস্ট পাঠানো
                 const response = await fetch(API_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -78,22 +75,20 @@
                 if (data.error) throw new Error(data.error.message);
 
                 const aiResponse = data.candidates[0].content.parts[0].text;
-                // Markdown থেকে HTML এ রূপান্তর
                 const htmlContent = marked.parse(aiResponse);
 
                 chatBox.innerHTML += `<div class="message ai-msg shadow-lg"><b>জেমিনি:</b><div class="mt-1 text-slate-200">${htmlContent}</div></div>`;
             } catch (err) {
                 console.error(err);
-                chatBox.innerHTML += `<div class="message bg-red-900/30 text-red-400 border border-red-500/40 text-xs w-full text-center self-center">Error: ${err.message}</div>`;
+                chatBox.innerHTML += `<div class="message bg-red-900/30 text-red-400 border border-red-500/40 text-xs w-full text-center">Error: ${err.message}. <br>টিপস: ব্রাউজার রিফ্রেশ করুন।</div>`;
             }
 
             btn.disabled = false;
-            status.innerText = "Connected";
-            status.className = "text-green-500 font-bold italic";
+            status.innerText = "Online";
+            status.className = "text-green-500 font-bold";
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // এন্টার বাটন সাপোর্ট
         document.getElementById('userInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
         });
