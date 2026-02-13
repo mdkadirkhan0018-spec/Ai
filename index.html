@@ -3,86 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini AI Developer Assistant</title>
+    <title>Gemini AI Developer Partner</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         body { background-color: #0f172a; color: white; }
-        .chat-box { height: 75vh; overflow-y: auto; border: 1px solid #334155; padding: 20px; border-radius: 12px; background: #1e293b; display: flex; flex-direction: column; gap: 15px; }
-        pre { background: #000; padding: 15px; border-radius: 8px; overflow-x: auto; margin: 10px 0; border: 1px solid #3b82f6; }
-        code { color: #60a5fa; font-family: 'Fira Code', monospace; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .chat-box { height: 75vh; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
+        .message { padding: 12px 16px; border-radius: 12px; max-width: 85%; line-height: 1.6; }
+        .user-msg { background: #3b82f6; align-self: flex-end; }
+        .ai-msg { background: #1e293b; align-self: flex-start; border: 1px solid #334155; }
+        pre { background: #000; padding: 12px; border-radius: 8px; margin: 10px 0; overflow-x: auto; border: 1px solid #4ade80; }
+        code { color: #4ade80; font-family: 'Fira Code', monospace; font-size: 0.9em; }
     </style>
 </head>
-<body class="p-4 font-sans">
+<body class="p-4 md:p-8">
 
     <div class="max-w-4xl mx-auto">
-        <header class="mb-6">
-            <h1 class="text-2xl font-bold text-blue-400">Gemini AI কোডিং পার্টনার</h1>
-            <p class="text-xs text-gray-400">Status: <span id="status" class="text-green-400">Ready to chat</span></p>
+        <header class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-bold text-blue-400">Gemini AI Partner</h1>
+            <div id="status" class="text-xs px-3 py-1 rounded-full bg-green-500/10 text-green-400 border border-green-500/30">System Ready</div>
         </header>
         
-        <div id="chatBox" class="chat-box mb-4 text-sm shadow-2xl">
-            <div class="bg-gray-800 p-4 rounded-lg self-start border border-gray-700 max-w-[85%]">
-                <b>জেমিনি:</b> স্বাগতম! আমি এখন আপনার সাথে কোডিং বা অন্য যেকোনো বিষয় নিয়ে আলোচনা করতে প্রস্তুত। কিছু একটা লিখে পরীক্ষা করুন।
+        <div id="chatBox" class="chat-box mb-6 bg-slate-900/50 p-4 rounded-xl border border-slate-800 shadow-inner">
+            <div class="message ai-msg italic text-slate-400">
+                জেমিনি: স্বাগতম ডেভেলপার! আমি এখন আপনার সাথে কোডিং প্রজেক্ট নিয়ে আলোচনা করতে প্রস্তুত। কিছু একটা লিখে টেস্ট করুন।
             </div>
         </div>
 
-        <div class="flex gap-3 bg-gray-800 p-2 rounded-xl border border-gray-700">
-            <input type="text" id="userInput" placeholder="এখানে মেসেজ লিখুন..." class="flex-1 p-3 bg-transparent outline-none text-white">
-            <button onclick="sendMessage()" id="sendBtn" class="bg-blue-600 px-6 py-3 rounded-lg font-bold hover:bg-blue-700 active:scale-95 transition-all">পাঠান</button>
+        <div class="flex gap-3 bg-slate-800 p-2 rounded-2xl border border-slate-700 shadow-lg">
+            <input type="text" id="userInput" placeholder="আপনার প্রশ্ন এখানে লিখুন..." class="flex-1 p-3 bg-transparent outline-none text-white placeholder-slate-500">
+            <button onclick="sendMessage()" id="sendBtn" class="bg-blue-600 px-6 py-3 rounded-xl font-bold hover:bg-blue-700 active:scale-95 transition-all">পাঠান</button>
         </div>
     </div>
 
     <script type="module">
-        // সরাসরি লেটেস্ট SDK ইমপোর্ট করা হচ্ছে
         import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
-        // আপনার সর্বশেষ স্ক্রিনশট থেকে পাওয়া API Key
+        // স্ক্রিনশট থেকে নেওয়া আপনার লেটেস্ট কাজ করা Key
         const API_KEY = "AIzaSyBaM7GCJF3SvfqlyoGTq_U4ufitrgqQ4eo"; 
-        
         const genAI = new GoogleGenerativeAI(API_KEY);
 
-        // মডেলের নাম 'gemini-pro' অথবা 'gemini-1.5-flash-latest' ট্রাই করা হচ্ছে
-        const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash-latest" 
-        });
+        // 'gemini-1.5-flash' মডেলটি ব্যবহার করা হচ্ছে যা সবচেয়ে স্টেবল
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         window.sendMessage = async function() {
             const inputField = document.getElementById('userInput');
             const chatBox = document.getElementById('chatBox');
             const btn = document.getElementById('sendBtn');
             const status = document.getElementById('status');
-            const userText = inputField.value;
+            const text = inputField.value.trim();
 
-            if (!userText) return;
+            if (!text) return;
 
-            // ইউজারের মেসেজ UI-তে দেখানো
-            chatBox.innerHTML += `<div class="bg-blue-600/20 p-4 rounded-lg self-end max-w-[85%] border border-blue-500/30"><b>আপনি:</b> ${userText}</div>`;
+            // UI Update
+            chatBox.innerHTML += `<div class="message user-msg shadow-md text-sm"><b>আপনি:</b><br>${text}</div>`;
             inputField.value = "";
             btn.disabled = true;
-            status.innerText = "Gemini is thinking...";
+            status.innerText = "Gemini is typing...";
+            status.classList.replace("text-green-400", "text-yellow-400");
             chatBox.scrollTop = chatBox.scrollHeight;
 
             try {
-                // জেনারেট রিকোয়েস্ট
-                const result = await model.generateContent(userText);
+                const result = await model.generateContent(text);
                 const response = await result.response;
-                const aiText = response.text();
+                const aiResponse = response.text();
 
-                // Markdown ফরম্যাটিং
-                const htmlContent = marked.parse(aiText);
-                chatBox.innerHTML += `<div class="bg-gray-800 p-4 rounded-lg self-start max-w-[90%] border border-gray-700 shadow-lg italic"><b>জেমিনি:</b> <div class="mt-2 not-italic text-gray-200">${htmlContent}</div></div>`;
-            } catch (error) {
-                console.error(error);
-                chatBox.innerHTML += `<div class="bg-red-900/40 p-4 rounded-lg text-red-300 border border-red-500/50">Error: ${error.message}. <br>টিপস: ব্রাউজার রিফ্রেশ করুন অথবা VPN ব্যবহার করে দেখুন।</div>`;
+                const htmlContent = marked.parse(aiResponse);
+                chatBox.innerHTML += `<div class="message ai-msg shadow-md text-sm"><b>জেমিনি:</b><div class="mt-2 text-slate-200">${htmlContent}</div></div>`;
+            } catch (err) {
+                console.error(err);
+                chatBox.innerHTML += `<div class="message bg-red-900/30 text-red-400 border border-red-500/50 text-xs text-center w-full">Error: ${err.message}. <br>টিপস: পেজ রিফ্রেশ করুন বা VPN ব্যবহার করে দেখুন।</div>`;
             }
 
             btn.disabled = false;
-            status.innerText = "Ready to chat";
+            status.innerText = "System Ready";
+            status.classList.replace("text-yellow-400", "text-green-400");
             chatBox.scrollTop = chatBox.scrollHeight;
         }
+
+        // Enter key সাপোর্ট
+        document.getElementById('userInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
     </script>
 </body>
 </html>
