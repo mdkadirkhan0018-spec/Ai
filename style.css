@@ -1,60 +1,36 @@
-body {
-    color: white;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.chat-box {
-    height: 70vh;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    scroll-behavior: smooth;
-}
+/* স্ক্রলবার ডিজাইন */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
 
 .message {
-    padding: 12px 16px;
-    border-radius: 15px;
+    padding: 14px;
+    border-radius: 18px;
     max-width: 85%;
     font-size: 14px;
     line-height: 1.6;
 }
 
 .user-msg {
-    background: #2563eb;
+    background: #238636; /* গিটহাব স্টাইল সবুজ */
     align-self: flex-end;
+    margin-left: auto;
     border-bottom-right-radius: 2px;
-    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
 }
 
 .ai-msg {
-    background: #1e293b;
+    background: #1c2128;
     align-self: flex-start;
-    border: 1px solid #334155;
+    border: 1px solid #30363d;
     border-bottom-left-radius: 2px;
 }
 
-/* কোড ব্লকের ডিজাইন */
 pre {
     background: #000;
     padding: 12px;
     border-radius: 8px;
-    overflow-x: auto;
     margin: 10px 0;
+    overflow-x: auto;
     border: 1px solid #3b82f6;
 }
 
-code {
-    color: #60a5fa;
-    font-family: 'Courier New', monospace;
-}
-
-/* স্ক্রলবার ডিজাইন */
-::-webkit-scrollbar {
-    width: 5px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #334155;
-    border-radius: 10px;
-}
+code { color: #4ade80; font-family: monospace; }
