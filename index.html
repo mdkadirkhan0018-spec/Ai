@@ -5,47 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gemini AI Developer Assistant</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         body { background-color: #0f172a; color: white; }
-        .chat-box { height: 70vh; overflow-y: auto; border: 1px solid #334155; padding: 20px; border-radius: 10px; background: #1e293b; }
+        .chat-box { height: 75vh; overflow-y: auto; border: 1px solid #334155; padding: 20px; border-radius: 12px; background: #1e293b; display: flex; flex-direction: column; gap: 15px; }
+        pre { background: #000; padding: 15px; border-radius: 8px; overflow-x: auto; margin: 10px 0; border: 1px solid #4ade80; }
+        code { color: #4ade80; font-family: 'Fira Code', monospace; }
     </style>
 </head>
-<body class="p-5 font-sans">
+<body class="p-4 font-sans">
 
-    <div class="max-w-3xl mx-auto">
-        <h1 class="text-2xl font-bold mb-4 text-blue-400">Gemini AI কোডিং পার্টনার</h1>
+    <div class="max-w-4xl mx-auto">
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-blue-400">Gemini AI কোডিং পার্টনার</h1>
+            <span class="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full border border-green-500/50">Online</span>
+        </header>
         
-        <div id="chatBox" class="chat-box mb-4 flex flex-col gap-3 text-sm">
-            <p class="text-gray-400 italic">জেমিনি: স্বাগতম ডেভেলপার! আমি আপনার কোডিং প্রজেক্টে সাহায্য করার জন্য প্রস্তুত। আপনি কী তৈরি করতে চান?</p>
+        <div id="chatBox" class="chat-box mb-4 text-sm shadow-2xl">
+            <div class="bg-gray-800 p-4 rounded-lg self-start border border-gray-700 max-w-[85%]">
+                <b>জেমিনি:</b> স্বাগতম ডেভেলপার! আপনার এপিআই এখন কাজ করার কথা। আমি আপনাকে কোড লিখতে বা বাগ ফিক্স করতে কীভাবে সাহায্য করতে পারি?
+            </div>
         </div>
 
-        <div class="flex gap-2">
-            <input type="text" id="userInput" placeholder="আপনার প্রশ্ন বা কোড রিকোয়েস্ট লিখুন..." class="flex-1 p-3 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-blue-500">
-            <button onclick="sendMessage()" id="sendBtn" class="bg-blue-600 px-6 py-2 rounded font-bold hover:bg-blue-700 transition">পাঠান</button>
+        <div class="flex gap-3 bg-gray-800 p-2 rounded-xl border border-gray-700">
+            <input type="text" id="userInput" placeholder="আপনার কোড রিকোয়েস্ট এখানে লিখুন..." class="flex-1 p-3 bg-transparent outline-none text-white">
+            <button onclick="sendMessage()" id="sendBtn" class="bg-blue-600 px-6 py-3 rounded-lg font-bold hover:bg-blue-700 active:scale-95 transition-all">পাঠান</button>
         </div>
     </div>
 
     <script type="module">
         import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
-        // এখানে আপনার API Key বসান
+        // স্ক্রিনশট ৩ থেকে নেওয়া আপনার সঠিক API Key
         const API_KEY = "AIzaSyBaM7GCJF3SvfqlyoGTq_U4ufitrgqQ4eo"; 
+        
         const genAI = new GoogleGenerativeAI(API_KEY);
         const model = genAI.getGenerativeModel({ 
             model: "gemini-1.5-flash",
-            systemInstruction: "তুমি একজন এক্সপার্ট ফুল-স্ট্যাক ডেভেলপার। তোমার কাজ হলো ইউজারকে কোডিং, বাগ ফিক্সিং এবং গিটহাব প্রজেক্টে সাহায্য করা। তুমি সব কোড একদম প্রফেশনাল লেভেলে লিখে দিবে এবং বাংলায় উত্তর দিবে।"
+            systemInstruction: "তুমি একজন সিনিয়র সফটওয়্যার ইঞ্জিনিয়ার। তুমি সবসময় প্রফেশনাল কোড ব্লক ব্যবহার করবে এবং বাংলায় উত্তর দিবে।"
         });
 
         window.sendMessage = async function() {
             const inputField = document.getElementById('userInput');
             const chatBox = document.getElementById('chatBox');
+            const btn = document.getElementById('sendBtn');
             const userText = inputField.value;
 
             if (!userText) return;
 
-            // ইউজারের মেসেজ স্ক্রিনে দেখানো
-            chatBox.innerHTML += `<div class="bg-blue-900 p-2 rounded self-end"><b>আপনি:</b> ${userText}</div>`;
+            chatBox.innerHTML += `<div class="bg-blue-600/20 p-4 rounded-lg self-end max-w-[85%] border border-blue-500/30 shadow-lg"><b>আপনি:</b> ${userText}</div>`;
             inputField.value = "";
+            btn.disabled = true;
+            btn.innerText = "লোডিং...";
             chatBox.scrollTop = chatBox.scrollHeight;
 
             try {
@@ -53,14 +64,16 @@
                 const response = await result.response;
                 const aiText = response.text();
 
-                // এআই-এর উত্তর দেখানো (Markdown সাপোর্ট করবে না সহজ কোডে, শুধু টেক্সট দেখাবে)
-                chatBox.innerHTML += `<div class="bg-gray-700 p-2 rounded self-start"><b>জেমিনি:</b> ${aiText}</div>`;
-                chatBox.scrollTop = chatBox.scrollHeight;
+                const htmlContent = marked.parse(aiText);
+                chatBox.innerHTML += `<div class="bg-gray-800 p-4 rounded-lg self-start max-w-[90%] border border-gray-700 shadow-lg"><b>জেমিনি:</b> <div class="mt-2 text-gray-200 leading-relaxed">${htmlContent}</div></div>`;
             } catch (error) {
-                chatBox.innerHTML += `<p class="text-red-500">Error: ${error.message}</p>`;
+                chatBox.innerHTML += `<div class="bg-red-900/40 p-4 rounded-lg text-red-300 border border-red-500/50">Error: API Key ভেরিফাই হচ্ছে না। দয়া করে ৫ মিনিট পর আবার চেষ্টা করুন বা নতুন Key জেনারেট করুন।</div>`;
             }
+
+            btn.disabled = false;
+            btn.innerText = "পাঠান";
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
     </script>
 </body>
 </html>
-
