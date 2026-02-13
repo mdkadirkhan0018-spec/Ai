@@ -3,30 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini AI Developer Partner</title>
+    <title>Gemini AI - Final Stable Version</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         body { background-color: #0f172a; color: white; }
-        .chat-box { height: 75vh; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
-        .message { padding: 12px 16px; border-radius: 12px; max-width: 85%; line-height: 1.6; }
+        .chat-box { height: 70vh; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
+        .message { padding: 12px 16px; border-radius: 12px; max-width: 85%; }
         .user-msg { background: #3b82f6; align-self: flex-end; }
         .ai-msg { background: #1e293b; align-self: flex-start; border: 1px solid #334155; }
-        pre { background: #000; padding: 12px; border-radius: 8px; margin: 10px 0; overflow-x: auto; border: 1px solid #4ade80; }
-        code { color: #4ade80; font-family: 'Fira Code', monospace; font-size: 0.9em; }
+        pre { background: #000; padding: 12px; border-radius: 8px; overflow-x: auto; margin-top: 8px; border: 1px solid #4ade80; }
+        code { color: #4ade80; font-family: 'Courier New', monospace; }
     </style>
 </head>
 <body class="p-4 md:p-8">
 
     <div class="max-w-4xl mx-auto">
         <header class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-blue-400">Gemini AI Partner</h1>
-            <div id="status" class="text-xs px-3 py-1 rounded-full bg-green-500/10 text-green-400 border border-green-500/30">System Ready</div>
+            <h1 class="text-2xl font-bold text-blue-400">Gemini AI Developer Partner</h1>
+            <div id="status" class="text-xs px-3 py-1 rounded-full bg-green-500/10 text-green-400 border border-green-500/30">System Active</div>
         </header>
         
         <div id="chatBox" class="chat-box mb-6 bg-slate-900/50 p-4 rounded-xl border border-slate-800 shadow-inner">
-            <div class="message ai-msg italic text-slate-400">
-                জেমিনি: স্বাগতম ডেভেলপার! আমি এখন আপনার সাথে কোডিং প্রজেক্ট নিয়ে আলোচনা করতে প্রস্তুত। কিছু একটা লিখে টেস্ট করুন।
+            <div class="message ai-msg text-slate-300">
+                <b>জেমিনি:</b> অভিনন্দন! আপনার সিস্টেমটি এখন সরাসরি গুগলের এপিআই সার্ভারের সাথে যুক্ত। আমি আপনার কোডিং এবং ডাটাবেজ প্রজেক্টে সাহায্য করতে প্রস্তুত।
             </div>
         </div>
 
@@ -36,52 +36,56 @@
         </div>
     </div>
 
-    <script type="module">
-        import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
-
-        // স্ক্রিনশট থেকে নেওয়া আপনার লেটেস্ট কাজ করা Key
+    <script>
+        // আপনার স্ক্রিনশট থেকে সংগৃহীত সঠিক এবং সচল এপিআই কী
         const API_KEY = "AIzaSyBaM7GCJF3SvfqlyoGTq_U4ufitrgqQ4eo"; 
-        const genAI = new GoogleGenerativeAI(API_KEY);
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
-        // 'gemini-1.5-flash' মডেলটি ব্যবহার করা হচ্ছে যা সবচেয়ে স্টেবল
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-        window.sendMessage = async function() {
+        async function sendMessage() {
             const inputField = document.getElementById('userInput');
             const chatBox = document.getElementById('chatBox');
             const btn = document.getElementById('sendBtn');
             const status = document.getElementById('status');
-            const text = inputField.value.trim();
+            const userText = inputField.value.trim();
 
-            if (!text) return;
+            if (!userText) return;
 
-            // UI Update
-            chatBox.innerHTML += `<div class="message user-msg shadow-md text-sm"><b>আপনি:</b><br>${text}</div>`;
+            // ইউজার মেসেজ রেন্ডার
+            chatBox.innerHTML += `<div class="message user-msg shadow-md text-sm"><b>আপনি:</b><br>${userText}</div>`;
             inputField.value = "";
             btn.disabled = true;
             status.innerText = "Gemini is typing...";
-            status.classList.replace("text-green-400", "text-yellow-400");
             chatBox.scrollTop = chatBox.scrollHeight;
 
             try {
-                const result = await model.generateContent(text);
-                const response = await result.response;
-                const aiResponse = response.text();
+                // সরাসরি Fetch মেথড ব্যবহার করে ডাটা আনা হচ্ছে
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: userText }] }]
+                    })
+                });
 
+                const data = await response.json();
+                
+                if (data.error) throw new Error(data.error.message);
+
+                const aiResponse = data.candidates[0].content.parts[0].text;
                 const htmlContent = marked.parse(aiResponse);
+
                 chatBox.innerHTML += `<div class="message ai-msg shadow-md text-sm"><b>জেমিনি:</b><div class="mt-2 text-slate-200">${htmlContent}</div></div>`;
             } catch (err) {
                 console.error(err);
-                chatBox.innerHTML += `<div class="message bg-red-900/30 text-red-400 border border-red-500/50 text-xs text-center w-full">Error: ${err.message}. <br>টিপস: পেজ রিফ্রেশ করুন বা VPN ব্যবহার করে দেখুন।</div>`;
+                chatBox.innerHTML += `<div class="message bg-red-900/30 text-red-400 border border-red-500/50 text-xs w-full">Error: ${err.message}</div>`;
             }
 
             btn.disabled = false;
-            status.innerText = "System Ready";
-            status.classList.replace("text-yellow-400", "text-green-400");
+            status.innerText = "System Active";
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // Enter key সাপোর্ট
+        // এন্টার কি কাজ করার জন্য লজিক
         document.getElementById('userInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
         });
