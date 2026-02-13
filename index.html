@@ -8,25 +8,28 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
-<body class="bg-slate-950 p-4 md:p-6">
+<body class="bg-[#0b0e14] text-white font-sans">
 
-    <div class="max-w-4xl mx-auto">
-        <header class="flex items-center justify-between mb-4 border-b border-slate-800 pb-4">
-            <div>
-                <h1 class="text-xl font-bold text-blue-400">Gemini AI Partner</h1>
-                <p class="text-xs text-slate-500">স্ট্যাটাস: <span id="status" class="text-green-500 font-bold">Online</span></p>
-            </div>
+    <div class="max-w-2xl mx-auto h-screen flex flex-col p-4">
+        <header class="py-4 border-b border-gray-800 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-blue-500">Gemini AI Partner</h1>
+            <div id="status" class="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full border border-green-500/30">Active</div>
         </header>
-        
-        <div id="chatBox" class="chat-box mb-4 p-4 rounded-2xl bg-slate-900/40 border border-slate-800 shadow-inner">
-            <div class="message ai-msg">
-                <b>জেমিনি:</b> অভিনন্দন! ফাইলগুলো এখন আলাদা এবং গুছিয়ে তৈরি করা। আমি এখন আপনার সাথে কথা বলতে প্রস্তুত।
+
+        <div id="chatBox" class="flex-1 overflow-y-auto my-4 space-y-4 pr-2">
+            <div class="ai-msg message shadow-lg">
+                <b>জেমিনি:</b> স্বাগতম! আমি আপনার কোডিং পার্টনার। আমি এখন আপনার গিটহাব প্রজেক্টে সাহায্য করতে প্রস্তুত।
             </div>
         </div>
 
-        <div class="flex gap-2 bg-slate-900 p-2 rounded-2xl border border-slate-700 shadow-2xl">
-            <input type="text" id="userInput" placeholder="আপনার প্রশ্ন এখানে লিখুন..." class="flex-1 p-3 bg-transparent outline-none text-white text-sm">
-            <button id="sendBtn" class="bg-blue-600 px-6 py-2 rounded-xl font-bold hover:bg-blue-700 active:scale-95 transition-all text-sm">পাঠান</button>
+        <div class="pb-4">
+            <div class="flex gap-2 bg-[#161b22] p-2 rounded-2xl border border-gray-700 shadow-xl">
+                <input type="text" id="userInput" placeholder="আপনার প্রশ্নটি এখানে লিখুন..." 
+                class="flex-1 bg-transparent p-3 outline-none text-sm placeholder-gray-500">
+                <button id="sendBtn" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-xl transition-all active:scale-95 font-bold">
+                    পাঠান
+                </button>
+            </div>
         </div>
     </div>
 
