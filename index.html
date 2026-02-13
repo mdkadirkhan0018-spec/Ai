@@ -3,42 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini AI - Final Stable Version</title>
+    <title>Gemini AI - Final Version</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        body { background-color: #0f172a; color: white; }
-        .chat-box { height: 70vh; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
-        .message { padding: 12px 16px; border-radius: 12px; max-width: 85%; }
-        .user-msg { background: #3b82f6; align-self: flex-end; }
-        .ai-msg { background: #1e293b; align-self: flex-start; border: 1px solid #334155; }
-        pre { background: #000; padding: 12px; border-radius: 8px; overflow-x: auto; margin-top: 8px; border: 1px solid #4ade80; }
-        code { color: #4ade80; font-family: 'Courier New', monospace; }
+        body { background-color: #0f172a; color: white; font-family: sans-serif; }
+        .chat-box { height: 75vh; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; scroll-behavior: smooth; }
+        .message { padding: 12px 16px; border-radius: 12px; max-width: 85%; line-height: 1.5; font-size: 14px; }
+        .user-msg { background: #2563eb; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .ai-msg { background: #1e293b; align-self: flex-start; border: 1px solid #334155; border-bottom-left-radius: 2px; }
+        pre { background: #000; padding: 12px; border-radius: 8px; overflow-x: auto; margin: 10px 0; border: 1px solid #3b82f6; }
+        code { color: #60a5fa; font-family: 'Courier New', monospace; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 md:p-8 bg-slate-950">
 
     <div class="max-w-4xl mx-auto">
-        <header class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-blue-400">Gemini AI Developer Partner</h1>
-            <div id="status" class="text-xs px-3 py-1 rounded-full bg-green-500/10 text-green-400 border border-green-500/30">System Active</div>
+        <header class="flex items-center justify-between mb-6 border-b border-slate-800 pb-4">
+            <div>
+                <h1 class="text-xl font-bold text-blue-400">Gemini AI Developer Partner</h1>
+                <p class="text-xs text-slate-500">Status: <span id="status" class="text-green-500 font-bold italic">Connected</span></p>
+            </div>
         </header>
         
-        <div id="chatBox" class="chat-box mb-6 bg-slate-900/50 p-4 rounded-xl border border-slate-800 shadow-inner">
-            <div class="message ai-msg text-slate-300">
-                <b>জেমিনি:</b> অভিনন্দন! আপনার সিস্টেমটি এখন সরাসরি গুগলের এপিআই সার্ভারের সাথে যুক্ত। আমি আপনার কোডিং এবং ডাটাবেজ প্রজেক্টে সাহায্য করতে প্রস্তুত।
+        <div id="chatBox" class="chat-box mb-6 p-4 rounded-xl bg-slate-900/40 shadow-inner border border-slate-800">
+            <div class="message ai-msg">
+                <b>জেমিনি:</b> অভিনন্দন! আপনার সিস্টেমটি এখন সরাসরি গুগল সার্ভারের সাথে যুক্ত। আমি আপনার প্রজেক্টের কোডিং বা যেকোনো সমস্যায় সাহায্য করতে প্রস্তুত। কিছু একটা লিখে পরীক্ষা করুন।
             </div>
         </div>
 
-        <div class="flex gap-3 bg-slate-800 p-2 rounded-2xl border border-slate-700 shadow-lg">
-            <input type="text" id="userInput" placeholder="আপনার প্রশ্ন এখানে লিখুন..." class="flex-1 p-3 bg-transparent outline-none text-white placeholder-slate-500">
-            <button onclick="sendMessage()" id="sendBtn" class="bg-blue-600 px-6 py-3 rounded-xl font-bold hover:bg-blue-700 active:scale-95 transition-all">পাঠান</button>
+        <div class="flex gap-2 bg-slate-900 p-2 rounded-2xl border border-slate-700 shadow-xl">
+            <input type="text" id="userInput" placeholder="আপনার প্রশ্ন এখানে লিখুন..." class="flex-1 p-3 bg-transparent outline-none text-white text-sm">
+            <button onclick="sendMessage()" id="sendBtn" class="bg-blue-600 px-6 py-2 rounded-xl font-bold hover:bg-blue-700 active:scale-95 transition-all text-sm">পাঠান</button>
         </div>
     </div>
 
     <script>
-        // আপনার স্ক্রিনশট থেকে সংগৃহীত সঠিক এবং সচল এপিআই কী
+        // আপনার স্ক্রিনশট ৪৬৯ থেকে নেওয়া সচল এপিআই কী
         const API_KEY = "AIzaSyBaM7GCJF3SvfqlyoGTq_U4ufitrgqQ4eo"; 
+        // একদম লেটেস্ট স্টেবল এন্ডপয়েন্ট
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
         async function sendMessage() {
@@ -46,24 +51,25 @@
             const chatBox = document.getElementById('chatBox');
             const btn = document.getElementById('sendBtn');
             const status = document.getElementById('status');
-            const userText = inputField.value.trim();
+            const text = inputField.value.trim();
 
-            if (!userText) return;
+            if (!text) return;
 
-            // ইউজার মেসেজ রেন্ডার
-            chatBox.innerHTML += `<div class="message user-msg shadow-md text-sm"><b>আপনি:</b><br>${userText}</div>`;
+            // ইউজার মেসেজ দেখানো
+            chatBox.innerHTML += `<div class="message user-msg shadow-lg"><b>আপনি:</b><br>${text}</div>`;
             inputField.value = "";
             btn.disabled = true;
-            status.innerText = "Gemini is typing...";
+            status.innerText = "Gemini is thinking...";
+            status.className = "text-yellow-500 font-bold italic";
             chatBox.scrollTop = chatBox.scrollHeight;
 
             try {
-                // সরাসরি Fetch মেথড ব্যবহার করে ডাটা আনা হচ্ছে
+                // সরাসরি API রিকোয়েস্ট পাঠানো
                 const response = await fetch(API_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: userText }] }]
+                        contents: [{ parts: [{ text: text }] }]
                     })
                 });
 
@@ -72,20 +78,22 @@
                 if (data.error) throw new Error(data.error.message);
 
                 const aiResponse = data.candidates[0].content.parts[0].text;
+                // Markdown থেকে HTML এ রূপান্তর
                 const htmlContent = marked.parse(aiResponse);
 
-                chatBox.innerHTML += `<div class="message ai-msg shadow-md text-sm"><b>জেমিনি:</b><div class="mt-2 text-slate-200">${htmlContent}</div></div>`;
+                chatBox.innerHTML += `<div class="message ai-msg shadow-lg"><b>জেমিনি:</b><div class="mt-1 text-slate-200">${htmlContent}</div></div>`;
             } catch (err) {
                 console.error(err);
-                chatBox.innerHTML += `<div class="message bg-red-900/30 text-red-400 border border-red-500/50 text-xs w-full">Error: ${err.message}</div>`;
+                chatBox.innerHTML += `<div class="message bg-red-900/30 text-red-400 border border-red-500/40 text-xs w-full text-center self-center">Error: ${err.message}</div>`;
             }
 
             btn.disabled = false;
-            status.innerText = "System Active";
+            status.innerText = "Connected";
+            status.className = "text-green-500 font-bold italic";
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // এন্টার কি কাজ করার জন্য লজিক
+        // এন্টার বাটন সাপোর্ট
         document.getElementById('userInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
         });
