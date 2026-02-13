@@ -9,69 +9,78 @@
     <style>
         body { background-color: #0f172a; color: white; }
         .chat-box { height: 75vh; overflow-y: auto; border: 1px solid #334155; padding: 20px; border-radius: 12px; background: #1e293b; display: flex; flex-direction: column; gap: 15px; }
-        pre { background: #000; padding: 15px; border-radius: 8px; overflow-x: auto; margin: 10px 0; border: 1px solid #4ade80; }
-        code { color: #4ade80; font-family: 'Fira Code', monospace; }
+        pre { background: #000; padding: 15px; border-radius: 8px; overflow-x: auto; margin: 10px 0; border: 1px solid #3b82f6; }
+        code { color: #60a5fa; font-family: 'Fira Code', monospace; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
 <body class="p-4 font-sans">
 
     <div class="max-w-4xl mx-auto">
-        <header class="flex justify-between items-center mb-6">
+        <header class="mb-6">
             <h1 class="text-2xl font-bold text-blue-400">Gemini AI কোডিং পার্টনার</h1>
-            <span class="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full border border-green-500/50">Online</span>
+            <p class="text-xs text-gray-400">Status: <span id="status" class="text-green-400">Ready to chat</span></p>
         </header>
         
         <div id="chatBox" class="chat-box mb-4 text-sm shadow-2xl">
             <div class="bg-gray-800 p-4 rounded-lg self-start border border-gray-700 max-w-[85%]">
-                <b>জেমিনি:</b> স্বাগতম ডেভেলপার! আপনার এপিআই এখন কাজ করার কথা। আমি আপনাকে কোড লিখতে বা বাগ ফিক্স করতে কীভাবে সাহায্য করতে পারি?
+                <b>জেমিনি:</b> স্বাগতম! আমি এখন আপনার সাথে কোডিং বা অন্য যেকোনো বিষয় নিয়ে আলোচনা করতে প্রস্তুত। কিছু একটা লিখে পরীক্ষা করুন।
             </div>
         </div>
 
         <div class="flex gap-3 bg-gray-800 p-2 rounded-xl border border-gray-700">
-            <input type="text" id="userInput" placeholder="আপনার কোড রিকোয়েস্ট এখানে লিখুন..." class="flex-1 p-3 bg-transparent outline-none text-white">
+            <input type="text" id="userInput" placeholder="এখানে মেসেজ লিখুন..." class="flex-1 p-3 bg-transparent outline-none text-white">
             <button onclick="sendMessage()" id="sendBtn" class="bg-blue-600 px-6 py-3 rounded-lg font-bold hover:bg-blue-700 active:scale-95 transition-all">পাঠান</button>
         </div>
     </div>
 
     <script type="module">
+        // সরাসরি লেটেস্ট SDK ইমপোর্ট করা হচ্ছে
         import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
-        // স্ক্রিনশট ৩ থেকে নেওয়া আপনার সঠিক API Key
+        // আপনার সর্বশেষ স্ক্রিনশট থেকে পাওয়া API Key
         const API_KEY = "AIzaSyBaM7GCJF3SvfqlyoGTq_U4ufitrgqQ4eo"; 
         
         const genAI = new GoogleGenerativeAI(API_KEY);
+
+        // মডেলের নাম 'gemini-pro' অথবা 'gemini-1.5-flash-latest' ট্রাই করা হচ্ছে
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash",
-            systemInstruction: "তুমি একজন সিনিয়র সফটওয়্যার ইঞ্জিনিয়ার। তুমি সবসময় প্রফেশনাল কোড ব্লক ব্যবহার করবে এবং বাংলায় উত্তর দিবে।"
+            model: "gemini-1.5-flash-latest" 
         });
 
         window.sendMessage = async function() {
             const inputField = document.getElementById('userInput');
             const chatBox = document.getElementById('chatBox');
             const btn = document.getElementById('sendBtn');
+            const status = document.getElementById('status');
             const userText = inputField.value;
 
             if (!userText) return;
 
-            chatBox.innerHTML += `<div class="bg-blue-600/20 p-4 rounded-lg self-end max-w-[85%] border border-blue-500/30 shadow-lg"><b>আপনি:</b> ${userText}</div>`;
+            // ইউজারের মেসেজ UI-তে দেখানো
+            chatBox.innerHTML += `<div class="bg-blue-600/20 p-4 rounded-lg self-end max-w-[85%] border border-blue-500/30"><b>আপনি:</b> ${userText}</div>`;
             inputField.value = "";
             btn.disabled = true;
-            btn.innerText = "লোডিং...";
+            status.innerText = "Gemini is thinking...";
             chatBox.scrollTop = chatBox.scrollHeight;
 
             try {
+                // জেনারেট রিকোয়েস্ট
                 const result = await model.generateContent(userText);
                 const response = await result.response;
                 const aiText = response.text();
 
+                // Markdown ফরম্যাটিং
                 const htmlContent = marked.parse(aiText);
-                chatBox.innerHTML += `<div class="bg-gray-800 p-4 rounded-lg self-start max-w-[90%] border border-gray-700 shadow-lg"><b>জেমিনি:</b> <div class="mt-2 text-gray-200 leading-relaxed">${htmlContent}</div></div>`;
+                chatBox.innerHTML += `<div class="bg-gray-800 p-4 rounded-lg self-start max-w-[90%] border border-gray-700 shadow-lg italic"><b>জেমিনি:</b> <div class="mt-2 not-italic text-gray-200">${htmlContent}</div></div>`;
             } catch (error) {
-                chatBox.innerHTML += `<div class="bg-red-900/40 p-4 rounded-lg text-red-300 border border-red-500/50">Error: API Key ভেরিফাই হচ্ছে না। দয়া করে ৫ মিনিট পর আবার চেষ্টা করুন বা নতুন Key জেনারেট করুন।</div>`;
+                console.error(error);
+                chatBox.innerHTML += `<div class="bg-red-900/40 p-4 rounded-lg text-red-300 border border-red-500/50">Error: ${error.message}. <br>টিপস: ব্রাউজার রিফ্রেশ করুন অথবা VPN ব্যবহার করে দেখুন।</div>`;
             }
 
             btn.disabled = false;
-            btn.innerText = "পাঠান";
+            status.innerText = "Ready to chat";
             chatBox.scrollTop = chatBox.scrollHeight;
         }
     </script>
