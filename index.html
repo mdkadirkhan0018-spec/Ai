@@ -1,1 +1,66 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini AI Developer Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; color: white; }
+        .chat-box { height: 70vh; overflow-y: auto; border: 1px solid #334155; padding: 20px; border-radius: 10px; background: #1e293b; }
+    </style>
+</head>
+<body class="p-5 font-sans">
+
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-2xl font-bold mb-4 text-blue-400">Gemini AI কোডিং পার্টনার</h1>
+        
+        <div id="chatBox" class="chat-box mb-4 flex flex-col gap-3 text-sm">
+            <p class="text-gray-400 italic">জেমিনি: স্বাগতম ডেভেলপার! আমি আপনার কোডিং প্রজেক্টে সাহায্য করার জন্য প্রস্তুত। আপনি কী তৈরি করতে চান?</p>
+        </div>
+
+        <div class="flex gap-2">
+            <input type="text" id="userInput" placeholder="আপনার প্রশ্ন বা কোড রিকোয়েস্ট লিখুন..." class="flex-1 p-3 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-blue-500">
+            <button onclick="sendMessage()" id="sendBtn" class="bg-blue-600 px-6 py-2 rounded font-bold hover:bg-blue-700 transition">পাঠান</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+        // এখানে আপনার API Key বসান
+        const API_KEY = "YOUR_GEMINI_API_KEY"; 
+        const genAI = new GoogleGenerativeAI(API_KEY);
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-1.5-flash",
+            systemInstruction: "তুমি একজন এক্সপার্ট ফুল-স্ট্যাক ডেভেলপার। তোমার কাজ হলো ইউজারকে কোডিং, বাগ ফিক্সিং এবং গিটহাব প্রজেক্টে সাহায্য করা। তুমি সব কোড একদম প্রফেশনাল লেভেলে লিখে দিবে এবং বাংলায় উত্তর দিবে।"
+        });
+
+        window.sendMessage = async function() {
+            const inputField = document.getElementById('userInput');
+            const chatBox = document.getElementById('chatBox');
+            const userText = inputField.value;
+
+            if (!userText) return;
+
+            // ইউজারের মেসেজ স্ক্রিনে দেখানো
+            chatBox.innerHTML += `<div class="bg-blue-900 p-2 rounded self-end"><b>আপনি:</b> ${userText}</div>`;
+            inputField.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const result = await model.generateContent(userText);
+                const response = await result.response;
+                const aiText = response.text();
+
+                // এআই-এর উত্তর দেখানো (Markdown সাপোর্ট করবে না সহজ কোডে, শুধু টেক্সট দেখাবে)
+                chatBox.innerHTML += `<div class="bg-gray-700 p-2 rounded self-start"><b>জেমিনি:</b> ${aiText}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } catch (error) {
+                chatBox.innerHTML += `<p class="text-red-500">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
 
